@@ -6,23 +6,38 @@ export class UsersService {
     constructor(private readonly usersRepository: UsersRepository
     ) {}
 
-    findAll():any {
-        return this.usersRepository.findAll();
+    findAll(page:number = 1, limit:number = 5):Omit<User, 'password'>[] {
+        return this.usersRepository.findAll(page, limit).map(user => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { password, ...result } = user;
+            return result
+        });
     }
 
-    findOne(id: number) {
-        return this.usersRepository.findOne(id);
+    findOne(id: number): Omit<User, 'password'> {
+        const user = this.usersRepository.findOne(id);
+        if (!user) {
+            throw new Error('User not found')
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...result } = user;
+
+        return result;
     }
 
-    create(user: User) {
-        return this.usersRepository.create(user);
+    create(user: User):number {
+        this.usersRepository.create(user);
+        return user.id
     }
 
-    update(id: number, user: Partial<User>) {
-        return this.usersRepository.update(id, user);
+    update(id: number, user: Partial<User>):number {
+        this.usersRepository.update(id, user);
+        
+        return id
     }
 
-    remove(id: number) {
-        return this.usersRepository.remove(id);
+    remove(id: number):number {
+        this.usersRepository.remove(id);
+        return id; 
     }
 }

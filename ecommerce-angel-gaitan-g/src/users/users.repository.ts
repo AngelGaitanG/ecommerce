@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 export interface User {
   id: number;
@@ -33,8 +33,13 @@ export class UsersRepository {
     city: 'New Jersey'
   }];
 
-  findAll(): User[] {
-    return this.users;
+  findAll(page, limit): User[] {
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    if (startIndex >= this.users.length) {
+      throw new NotFoundException('Page out of range');
+    }
+    return this.users.slice(startIndex, endIndex);
   }
 
   findOne(id: number): User | undefined {
@@ -55,5 +60,13 @@ export class UsersRepository {
   remove(id: number): void {
     this.users = this.users.filter(user => user.id !== id);
   }
+
+  findByEmail(email: string): User | undefined {
+    return this.users.find(user => user.email === email);
+  }
+
+  comparePassword(password: string, storedPassword: string): boolean {
+    return password === storedPassword;
 }
 
+}
