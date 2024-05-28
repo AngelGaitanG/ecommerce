@@ -1,11 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersRepository } from 'src/users/users.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/user.entity';
+import { Repository } from 'typeorm';
+
 
 
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly usersRepository: UsersRepository,
+        @InjectRepository(User)
+    private readonly usersRepository: Repository<User>
     ) {}
     AuthUser() {
         return 'Esta accion autenticara a un usuario'
@@ -16,18 +20,12 @@ export class AuthService {
             throw new UnauthorizedException('Credentials are required')
         }
 
-        const user = this.usersRepository.findByEmail(email);
+        const user = this.usersRepository.findOne({where: {email: email, password: password}});
         if(!user) {
             throw new UnauthorizedException('Credentials are not valid')
         }
 
-        const isPasswordValid = this.usersRepository.comparePassword(password, user.password);
-        if(!isPasswordValid) {
-            throw new UnauthorizedException('Credentials are not valid')
-        }
-        const authorization = true;
-
-        return authorization
+        return user;
     }
 
 

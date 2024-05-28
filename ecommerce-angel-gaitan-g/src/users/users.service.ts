@@ -1,43 +1,68 @@
-import { Injectable } from '@nestjs/common';
-import { User, UsersRepository } from './users.repository';
+import { Injectable, NotFoundException } from '@nestjs/common';
+
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './user.entity';
+import { Repository } from 'typeorm';
+import { UpdateUserDto } from './dto/UserDto';
+import { Order } from 'src/order/order.entity';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository
+    constructor( @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+    @InjectRepository(Order) private orderRepository: Repository<Order>
     ) {}
 
-    findAll(page:number = 1, limit:number = 5):Omit<User, 'password'>[] {
-        return this.usersRepository.findAll(page, limit).map(user => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { password, ...result } = user;
-            return result
+    async getAllUsers(page: number, limit: number) {
+        const [products] = await this.usersRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+        relations: { orders: true },
         });
+        return products;
     }
+    
 
-    findOne(id: number): Omit<User, 'password'> {
-        const user = this.usersRepository.findOne(id);
+    async findOne(id: string): Promise<User> {
+        const user = await this.usersRepository.findOne({where: {id: id}});
         if (!user) {
-            throw new Error('User not found')
+            throw new NotFoundException('User not found')
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...result } = user;
-
-        return result;
+        return user;
     }
 
-    create(user: User):number {
-        this.usersRepository.create(user);
-        return user.id
+ async registerUser (user: User): Promise<Omit<User, 'password'>> {
+    const newUser = this.usersRepository.create(user);
+    await this.usersRepository.save(newUser)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {password, ...result} = newUser
+    return result
+ }
+    
+    async getUsers():Promise<Omit<User, 'password'>[]> {
+        const users = await this.usersRepository.find({relations: ['orders']});
+        const withoutPass = users.map(user => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const {password, ...result} = user
+            return result
+        })
+        return withoutPass
     }
+    async updateUser(id: string, user: UpdateUserDto): Promise<User> {
+        const foundUser = await this.usersRepository.findOne({ where: { id: id } });
+        if(!foundUser){
+            throw new NotFoundException('User not found');
+        }
+        Object.assign(foundUser, user);
+        await this.usersRepository.save(foundUser);
+        return foundUser;
+      }
 
-    update(id: number, user: Partial<User>):number {
-        this.usersRepository.update(id, user);
-        
-        return id
-    }
-
-    remove(id: number):number {
-        this.usersRepository.remove(id);
-        return id; 
-    }
+      async deleteUser(id: string): Promise<User> {
+        const foundUser = await this.usersRepository.findOne({ where: { id: id } });
+        if (!foundUser) throw new NotFoundException('User not found');
+        await this.orderRepository.delete({user: foundUser})
+        await this.usersRepository.delete(foundUser);
+        return foundUser;
+      }
 }

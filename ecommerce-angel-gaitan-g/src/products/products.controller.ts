@@ -1,57 +1,58 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { Product } from './products.repository';
-import { CreateProductDto, UpdateProductDto, validateCreateProduct, validateUpdateProduct } from './dto/ProductDto';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { Product } from './product.entity';
+import { DataLoaderService } from 'src/data-loader/data-loader.service';
 
 @Controller('products')
 export class ProductsController {
-    constructor(private readonly productsService: ProductsService) {}
+    constructor(private readonly productsService: ProductsService,
+        private readonly dataLoaderService: DataLoaderService
+    ) {}
 
-    @Get()
-    @HttpCode(HttpStatus.OK)
-    findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 5): Product[] {
-        return this.productsService.findAll(page, limit);
+    @Post('seeder')
+    async seedProducts(): Promise<Product[]> {
+        await this.dataLoaderService.loadCategories();
+        await this.dataLoaderService.loadProducts();
+        return this.productsService.getProducts();
     }
 
+    @Post('add')
+    async addProducts(@Body() products: Product[]): Promise<Product[]> {
+        const addedProducts = [];
+        for(const product of products){
+            const existingProduct = await this.productsService.findByName(product.name)
+            if(!existingProduct){
+                addedProducts.push(await this.productsService.addProducts(product))
+            }
+        }
+        return addedProducts
+    }
+
+    @Get()
+    async getProducts(@Query('page') page: number = 1, @Query('limit') limit: number = 5): Promise<Product[]> {
+        return this.productsService.getAllProducts(page, limit);
+    }
     @Get(':id')
-    @HttpCode(HttpStatus.OK)
-    getProduct(@Param() id): Product {
-        const idParsed = parseInt(id.id);
-        return this.productsService.findOne(idParsed);
+    getProduct(@Param('id') id: string): Promise<Product> {
+        
+        return this.productsService.findOne(id);
     }
 
     @Post('create')
-    @UseGuards(AuthGuard)
-    @HttpCode(HttpStatus.CREATED)
-    createProduct(@Body() product: CreateProductDto):number {
-        try {
-            validateCreateProduct(product)
-        } catch (error) {
-            throw error
-        }
-        return this.productsService.create(product);
+    createProduct(@Body() product: Partial<Product>) {
+        return this.productsService.addProducts(product);
     }
 
     @Put(':id')
-    @UseGuards(AuthGuard)
-    @HttpCode(HttpStatus.OK)
-    updateProduct(@Body() product: UpdateProductDto, @Param() id):number {
-        const idParsed = parseInt(id.id);
-        try {
-            validateUpdateProduct(product)
-        } catch(error) {
-            throw error 
-        }
-        return this.productsService.update(idParsed, product);
+    async updateProduct(@Body() product: Partial<Product>, @Param('id') id): Promise<number> {
+        
+        return this.productsService.update(id, product);
     }
 
     @Delete(':id')
-    @UseGuards(AuthGuard)
-    @HttpCode(HttpStatus.OK)
-    deleteProduct(@Param() id):number {
-        const idParsed = parseInt(id.id);
-        return this.productsService.remove(idParsed);
+    deleteProduct(@Param('id') id):Promise<string> {
+        return this.productsService.remove(id);
     }
 
 }

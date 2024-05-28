@@ -1,12 +1,12 @@
 import { BadRequestException } from "@nestjs/common";
 
 export interface CreateProductDto {
-  id: number;
   name: string;
   description: string;
   price: number;
   stock: boolean;
   imgUrl: string;
+  category: string
 }
 
 export interface UpdateProductDto {
@@ -19,7 +19,7 @@ export interface UpdateProductDto {
 
 
 export const validateCreateProduct = (dto: CreateProductDto) => {
-  if (typeof dto.id !== 'number' || typeof dto.name !== 'string' || typeof dto.description !== 'string' ||
+  if ( typeof dto.name !== 'string' || typeof dto.description !== 'string' ||
   typeof dto.price !== 'number' || typeof dto.stock !== 'boolean' || typeof dto.imgUrl !== 'string') {
       throw new BadRequestException('Invalid product data');            
   }
