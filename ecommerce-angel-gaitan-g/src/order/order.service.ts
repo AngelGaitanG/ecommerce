@@ -16,7 +16,7 @@ export class OrderService {
     ){}
 
     async addOrder(userId: string, productIds: any): Promise<Order> {
-        console.log(productIds)
+
         if (!Array.isArray(productIds)) {
         throw new NotFoundException('products is not an array');
     }

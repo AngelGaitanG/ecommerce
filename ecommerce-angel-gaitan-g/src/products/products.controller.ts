@@ -1,5 +1,5 @@
 
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './product.entity';
 import { DataLoaderService } from 'src/data-loader/data-loader.service';
@@ -34,7 +34,7 @@ export class ProductsController {
         return this.productsService.getAllProducts(page, limit);
     }
     @Get(':id')
-    getProduct(@Param('id') id: string): Promise<Product> {
+    getProduct(@Param('id', ParseUUIDPipe) id: string): Promise<Product> {
         
         return this.productsService.findOne(id);
     }
@@ -45,13 +45,13 @@ export class ProductsController {
     }
 
     @Put(':id')
-    async updateProduct(@Body() product: Partial<Product>, @Param('id') id): Promise<number> {
+    async updateProduct(@Body() product: Partial<Product>, @Param('id', ParseUUIDPipe) id:string): Promise<string> {
         
         return this.productsService.update(id, product);
     }
 
     @Delete(':id')
-    deleteProduct(@Param('id') id):Promise<string> {
+    deleteProduct(@Param('id', ParseUUIDPipe) id:string):Promise<string> {
         return this.productsService.remove(id);
     }
 

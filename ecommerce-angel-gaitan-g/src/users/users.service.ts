@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/UserDto';
+
 import { Order } from 'src/order/order.entity';
 
 @Injectable()
@@ -31,10 +31,10 @@ export class UsersService {
         return user;
     }
 
- async registerUser (user: User): Promise<Omit<User, 'password'>> {
+ async registerUser (user: Partial<User>): Promise<Omit<User, 'password'>> {
     const newUser = this.usersRepository.create(user);
     await this.usersRepository.save(newUser)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const {password, ...result} = newUser
     return result
  }
@@ -42,13 +42,13 @@ export class UsersService {
     async getUsers():Promise<Omit<User, 'password'>[]> {
         const users = await this.usersRepository.find({relations: ['orders']});
         const withoutPass = users.map(user => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            
             const {password, ...result} = user
             return result
         })
         return withoutPass
     }
-    async updateUser(id: string, user: UpdateUserDto): Promise<User> {
+    async updateUser(id: string, user: Partial<User>): Promise<User> {
         const foundUser = await this.usersRepository.findOne({ where: { id: id } });
         if(!foundUser){
             throw new NotFoundException('User not found');

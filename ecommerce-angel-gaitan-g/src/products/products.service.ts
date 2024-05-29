@@ -48,7 +48,7 @@ export class ProductsService {
     }
 
     
-    async  update(id: number, product: Partial<Product>):Promise<number> {
+    async  update(id: string, product: Partial<Product>):Promise<string> {
          await this.productsRepository.update(id, product)
        
         return id

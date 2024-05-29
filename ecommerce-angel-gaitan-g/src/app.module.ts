@@ -19,6 +19,7 @@ import { OrderDetail } from './order/order-detail.entity';
 import { Order } from './order/order.entity';
 import { Product } from './products/product.entity';
 import { User } from './users/user.entity';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { User } from './users/user.entity';
       useFactory: (config: ConfigService) => config.get('typeorm')
     }),
     TypeOrmModule.forFeature([User, Product, Order, OrderDetail, Category]),
-    ProductsModule, UsersModule, AuthModule, OrderModule, DataLoaderModule, CategoryModule],
+    ProductsModule, UsersModule, AuthModule, OrderModule, DataLoaderModule, CategoryModule, FilesModule],
   controllers: [AppController],
   providers: [AppService, DataLoaderService, CategoryService, ProductsService],
 })
