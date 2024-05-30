@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 
 import { Order } from 'src/order/order.entity';
 
+type UserWithoutPassword = Omit<User, 'password'>
+
 @Injectable()
 export class UsersService {
     constructor( @InjectRepository(User)
@@ -14,14 +16,17 @@ export class UsersService {
     ) {}
 
     async getAllUsers(page: number, limit: number) {
-        const [products] = await this.usersRepository.findAndCount({
+        const [users] = await this.usersRepository.findAndCount({
         skip: (page - 1) * limit,
         take: limit,
         relations: { orders: true },
         });
-        return products;
+        return users;
     }
     
+    async getUserByEmail(email: string): Promise<User> {
+        return this.usersRepository.findOne({where: {email: email}});
+    }
 
     async findOne(id: string): Promise<User> {
         const user = await this.usersRepository.findOne({where: {id: id}});

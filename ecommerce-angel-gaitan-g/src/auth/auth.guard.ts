@@ -1,23 +1,26 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 
 
 @Injectable()
 export class AuthGuard implements CanActivate {
+  constructor(private readonly jwtService: JwtService){}
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    const authorizationHeader = request.headers['authorization'];
-
-    if (!authorizationHeader) {
-      throw new UnauthorizedException('Authorization header is required');
+    const token = request.headers['authorization'].split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
     }
-
-    if (authorizationHeader !== 'Basic: <email>:<password>') {
-      throw new UnauthorizedException('Invalid Authorization header format');
+    try{
+      const secret = process.env.JWT_SECRET;
+      const payload = this.jwtService.verify(token, {secret});
+      request.user = payload;
+      return true;
+    }catch(err){
+      throw new UnauthorizedException('Invalid token');
     }
-
-    return true;
   }
 }

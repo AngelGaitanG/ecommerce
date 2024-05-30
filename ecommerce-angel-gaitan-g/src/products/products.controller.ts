@@ -1,8 +1,12 @@
 
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from './product.entity';
 import { DataLoaderService } from 'src/data-loader/data-loader.service';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/auth/role.enum';
 
 @Controller('products')
 export class ProductsController {
@@ -45,12 +49,15 @@ export class ProductsController {
     }
 
     @Put(':id')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async updateProduct(@Body() product: Partial<Product>, @Param('id', ParseUUIDPipe) id:string): Promise<string> {
         
         return this.productsService.update(id, product);
     }
 
     @Delete(':id')
+    @UseGuards(AuthGuard)
     deleteProduct(@Param('id', ParseUUIDPipe) id:string):Promise<string> {
         return this.productsService.remove(id);
     }

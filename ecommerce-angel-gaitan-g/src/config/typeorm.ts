@@ -19,7 +19,7 @@ const config = {
     synchronize: true,
     entities: [User, Product, Order, OrderDetail, Category],
     logging: false,
-    // dropSchema: true
+    dropSchema: true
 }
 
 export default registerAs('typeorm', () => config)

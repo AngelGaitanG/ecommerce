@@ -14,8 +14,11 @@ export class User {
     @Column({length: 50, unique: true})
     email: string
 
-    @Column({length: 20, select: false})
+    @Column({length: 80})
     password: string
+
+    @Column({default: false})
+    isAdmin: boolean
 
     @Column()
     phone: number;
@@ -23,7 +26,7 @@ export class User {
     @Column({nullable: true, length: 50})
     country?: string;
 
-    @Column({nullable: true, length: 50})
+    @Column({nullable: true, length: 50, type: 'character varying'})
     city?: string;
 
     @OneToMany(() => Order, order => order.user)

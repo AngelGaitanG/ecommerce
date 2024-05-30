@@ -5,6 +5,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 
 import { OrderService } from 'src/order/order.service';
 import { CreateUserDto } from './dto/CreateUserDto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/auth/role.enum';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 
 @Controller('users')
@@ -14,14 +17,23 @@ export class UsersController {
     ) {}
 
     @Get()
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 5):Promise<User[]> {
         return this.usersService.getAllUsers(page, limit);
     }
 
     @Get()
+    @UseGuards(AuthGuard)
     getUsers(){
         return this.usersService.getUsers();
+    }
+ 
+    @Get('admin')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    getAdmin(){
+        return 'Ruta protegida'
     }
 
     @Get(':id')
