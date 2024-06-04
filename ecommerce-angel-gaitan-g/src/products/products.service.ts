@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { Repository } from 'typeorm';
+import { CreateProductDto, UpdateProductDto } from './dto/ProductDto';
+import { Category } from 'src/category/category.entity';
 
 
 
@@ -10,7 +12,10 @@ import { Repository } from 'typeorm';
 export class ProductsService {
     constructor(
         @InjectRepository(Product)
-        private readonly productsRepository: Repository<Product>,) {}
+        private readonly productsRepository: Repository<Product>,
+        @InjectRepository(Category)
+        private readonly categoryRepository: Repository<Category>,
+    ) {}
 
     async getAllProducts(page: number, limit: number) {
         const [products] = await this.productsRepository.findAndCount({
@@ -22,9 +27,13 @@ export class ProductsService {
     }
 
     // CREA UN PRODUCTO CON LOS DATOS RECIBIDOS
-    async addProducts(product: Partial<Product>):Promise<Product> {
-        const newProduct = await this.productsRepository.save(product);
-        return this.productsRepository.save(newProduct)
+    async addProducts(product: CreateProductDto):Promise<Product> {
+        const categoryFound = await this.categoryRepository.findOne({where: {id: product.category.id}});
+        if(!categoryFound){
+            throw new BadRequestException('Category not found');
+        }
+        
+        return this.productsRepository.save(product);
     }
 
     // BUSCA TODOS LOS PRODUCTOS
@@ -48,7 +57,7 @@ export class ProductsService {
     }
 
     
-    async  update(id: string, product: Partial<Product>):Promise<string> {
+    async update(id: string, product: UpdateProductDto):Promise<string> {
          await this.productsRepository.update(id, product)
        
         return id

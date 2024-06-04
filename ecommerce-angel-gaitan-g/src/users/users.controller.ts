@@ -8,8 +8,9 @@ import { CreateUserDto } from './dto/CreateUserDto';
 import { Roles } from 'src/decorators/roles.decorator';
 import { Role } from 'src/auth/role.enum';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService,
@@ -19,36 +20,31 @@ export class UsersController {
     @Get()
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(Role.Admin)
+    @ApiBearerAuth()
     findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 5):Promise<User[]> {
         return this.usersService.getAllUsers(page, limit);
     }
 
     @Get()
     @UseGuards(AuthGuard)
+    @ApiBearerAuth()
+
     getUsers(){
         return this.usersService.getUsers();
     }
  
-    @Get('admin')
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles(Role.Admin)
-    getAdmin(){
-        return 'Ruta protegida'
-    }
 
     @Get(':id')
     @UseGuards(AuthGuard)
+    @ApiBearerAuth()
     findOne(@Param('id', ParseUUIDPipe) id: string):Promise <User> {
         return this.usersService.findOne(id);
     }
 
-    @Post()
-    create(@Body() user: CreateUserDto) {
-        return this.usersService.registerUser(user);
-    }
-
     @Put(':id')
     @UseGuards(AuthGuard)
+    @ApiBearerAuth()
+
     update(@Param('id', ParseUUIDPipe) id:string, @Body() user: User) {
         
         return this.usersService.updateUser(id, user);
@@ -56,6 +52,7 @@ export class UsersController {
 
     @Delete(':id')
     @UseGuards(AuthGuard)
+    @ApiBearerAuth()
     async remove(@Param('id', ParseUUIDPipe) id:string) {
         await this.usersService.deleteUser(id);
         return {message: "Usuario eliminado"}

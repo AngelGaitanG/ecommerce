@@ -10,7 +10,7 @@ import { CategoryService } from 'src/category/category.service';
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Product, Category])],
+    imports: [TypeOrmModule.forFeature([Product, Category, Category])],
     controllers: [ProductsController],
     providers: [ProductsService, DataLoaderService, CategoryService]
 })

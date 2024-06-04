@@ -2,7 +2,9 @@ import { Body, Controller, FileTypeValidator, MaxFileSizeValidator, Param, Parse
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Files')
 @Controller('files')
 export class FilesController {
     constructor(private readonly filesService: FilesService) { }
@@ -12,6 +14,24 @@ export class FilesController {
     @Post('uploadImage/:id')
     @UseGuards(AuthGuard)
     @UseInterceptors(FileInterceptor('image'))
+    @ApiBearerAuth()
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          file: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    })
+    @ApiParam({
+        name: 'id',
+        description: 'The ID of the product',
+        type: 'string',
+    })
     async uploadImage(@Param('id') id:string, @UploadedFile(
         new ParseFilePipe({
             validators: [
