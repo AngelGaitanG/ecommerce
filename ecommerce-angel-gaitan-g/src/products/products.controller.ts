@@ -45,7 +45,11 @@ export class ProductsController {
     @Put(':id')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(Role.Admin)
-    @ApiBody({type: Object})
+    @ApiBody({type: Object,
+        examples: {
+            
+        }
+    })
     @ApiBearerAuth()
     async updateProduct(@Body() product: Partial<UpdateProductDto>, @Param('id', ParseUUIDPipe) id:string): Promise<string> {
         
