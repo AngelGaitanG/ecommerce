@@ -13,7 +13,7 @@ export class FilesController {
 
     @Post('uploadImage/:id')
     @UseGuards(AuthGuard)
-    @UseInterceptors(FileInterceptor('image'))
+    @UseInterceptors(FileInterceptor('file'))
     @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
