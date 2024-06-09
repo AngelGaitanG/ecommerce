@@ -11,7 +11,7 @@ export class CategoryRepository {
     ){}
 
     async getCategories(): Promise<Category[]>{
-        const categories = await this.categoryRepository.find();
+        const categories = await this.categoryRepository.find({relations: {products: true}});
         if(!categories){
             throw new NotFoundException('Categories not found');
         }
