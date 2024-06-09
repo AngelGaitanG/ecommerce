@@ -11,12 +11,12 @@ export class AuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     if(!request.headers['authorization']){
-      throw new UnauthorizedException('No token provided');
+      throw new UnauthorizedException('El Token no ha sido enviado');
     }
 
     const token = request.headers['authorization'].split(' ')[1];
     if (!token) {
-      throw new UnauthorizedException('No token provided');
+      throw new UnauthorizedException('El Token no ha sido enviado');
     }
     try{
       const secret = process.env.JWT_SECRET;
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
       request.user = payload;
       return true;
     }catch(err){
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('Token invalido');
     }
   }
 }

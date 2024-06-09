@@ -23,6 +23,10 @@ export class ProductsController {
         await this.dataLoaderService.loadProducts();
         return this.productsService.getProducts();
     }
+    @Post('add')
+    async addProducts(@Body() product: CreateProductDto): Promise<Product> {
+        return this.productsService.addProducts(product);
+    }
 
     @Get()
     async getProducts(@Query('page') page: number = 1, @Query('limit') limit: number = 5): Promise<Product[]> {
@@ -45,11 +49,7 @@ export class ProductsController {
     @Put(':id')
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(Role.Admin)
-    @ApiBody({type: Object,
-        examples: {
-            
-        }
-    })
+    @ApiBody({type: Object})
     @ApiBearerAuth()
     async updateProduct(@Body() product: Partial<UpdateProductDto>, @Param('id', ParseUUIDPipe) id:string): Promise<string> {
         

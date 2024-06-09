@@ -3,6 +3,9 @@ import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/auth/role.enum';
 
 @ApiTags('Files')
 @Controller('files')
@@ -12,7 +15,8 @@ export class FilesController {
 
 
     @Post('uploadImage/:id')
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     @UseInterceptors(FileInterceptor('file'))
     @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
@@ -41,7 +45,7 @@ export class FilesController {
                 })
             ]
         })
-    ) file: Express.Multer.File) {
+    ) file: Express.Multer.File):Promise<string> {
         await this.filesService.uploadFile(file,id);
 
         return 'Imagen cambiada con exito'

@@ -1,70 +1,43 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity';
-import { Repository } from 'typeorm';
+
 import { CreateProductDto, UpdateProductDto } from './dto/ProductDto';
-import { Category } from 'src/category/category.entity';
+
+import { ProductsRepository } from './products.repository';
 
 
 
 @Injectable()
 export class ProductsService {
     constructor(
-        @InjectRepository(Product)
-        private readonly productsRepository: Repository<Product>,
-        @InjectRepository(Category)
-        private readonly categoryRepository: Repository<Category>,
-    ) {}
+        private readonly productsRepository: ProductsRepository
+    ){}
 
-    async getAllProducts(page: number, limit: number) {
-        const [products] = await this.productsRepository.findAndCount({
-        skip: (page - 1) * limit,
-        take: limit,
-        relations: { category: true },
-        });
-        return products;
+    async getAllProducts(page: number, limit:number):Promise<Product[]> {
+        return await this.productsRepository.getAllProducts(page, limit);
     }
 
-    // CREA UN PRODUCTO CON LOS DATOS RECIBIDOS
     async addProducts(product: CreateProductDto):Promise<Product> {
-        const categoryFound = await this.categoryRepository.findOne({where: {id: product.category.id}});
-        if(!categoryFound){
-            throw new BadRequestException('Category not found');
-        }
-        
-        return this.productsRepository.save(product);
+        return await this.productsRepository.addProducts(product);
     }
 
-    // BUSCA TODOS LOS PRODUCTOS
-    async getProducts(): Promise<Product[]> {
-        const products = await this.productsRepository.find({
-            relations: ['category']});
-        return products
+    async getProducts():Promise<Product[]>{
+        return await this.productsRepository.getProducts();
     }
 
-    // BUSCA POR NOMBRE
+    async findByName(name: string):Promise<Product>{
+        return await this.productsRepository.findByName(name);}
 
-    async findByName(name:string):Promise<Product | undefined>{
-        return this.productsRepository.findOne({where: {name}})
+    async findOne(id: string):Promise<Product>{
+        return await this.productsRepository.findOne(id);
     }
 
-    // BUSCA POR ID
-    async findOne(id:string){
-        const product = await this.productsRepository.findOne({where: {id}})
-        return product
-
+    async update(id: string, product: Partial<UpdateProductDto>):Promise<string>{
+        return await this.productsRepository.update(id, product);
     }
 
-    
-    async update(id: string, product: UpdateProductDto):Promise<string> {
-         await this.productsRepository.update(id, product)
-       
-        return id
-    }
-
-    async remove(id: string): Promise<string> {
-        this.productsRepository.delete(id)
-        return id;
+    async remove(id: string):Promise<string>{
+        return await this.productsRepository.remove(id);
     }
 }

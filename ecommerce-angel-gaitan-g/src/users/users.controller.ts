@@ -25,15 +25,7 @@ export class UsersController {
         return this.usersService.getAllUsers(page, limit);
     }
 
-    @Get()
-    @UseGuards(AuthGuard)
-    @ApiBearerAuth()
-
-    getUsers(){
-        return this.usersService.getUsers();
-    }
  
-
     @Get(':id')
     @UseGuards(AuthGuard)
     @ApiBearerAuth()
@@ -45,8 +37,7 @@ export class UsersController {
     @UseGuards(AuthGuard)
     @ApiBearerAuth()
 
-    update(@Param('id', ParseUUIDPipe) id:string, @Body() user: User) {
-        
+    update(@Param('id', ParseUUIDPipe) id:string, @Body() user: User):Promise<User> {
         return this.usersService.updateUser(id, user);
     }
 
@@ -57,4 +48,5 @@ export class UsersController {
         await this.usersService.deleteUser(id);
         return {message: "Usuario eliminado"}
     }
+    
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryService } from 'src/category/category.service';
 import { ProductsService } from 'src/products/products.service';
 import * as data from './data.json'
@@ -10,26 +10,30 @@ export class DataLoaderService {
         private readonly productsService: ProductsService
     ){}
 
-
-
     // AQUI ESTA EL METODO DONDE COMPRUEBA DE QUE NO EXISTA UNA CATEGORIA REPETIDA Y 
     // SINO QUE LA CREE
-    async loadCategories(){
+    async loadCategories() {
         const uniqueCategories = [];
         for(const product of data.products){
             uniqueCategories.push(product.category);
         }
         for(const category of uniqueCategories){
-            const existingCategory = await this.categoryService.findByName(category);
-            if(!existingCategory) {
-                await this.categoryService.addCategories({ name: category });
+            try {
+                const existCategory = await this.categoryService.findByName(category);
+                if(!existCategory){
+                    await this.categoryService.addCategories({ name: category });
+                }
+            } catch (error) {
+                if (error instanceof NotFoundException) {
+                    await this.categoryService.addCategories({ name: category });
+                } else {
+                    throw error;
+                }
             }
         }
     }
-
-
+    
     // AQUI ESTA LO MISMO PERO CON PRODUCTOS Y ADEMAS LE ASIGNA LA RELACION CON LA CATEGORIA
-
     async loadProducts(){
         for(const product of data.products){
             const category = await this.categoryService.findByName(product.category)
@@ -38,6 +42,5 @@ export class DataLoaderService {
             }
         }
     }
-
 
 }

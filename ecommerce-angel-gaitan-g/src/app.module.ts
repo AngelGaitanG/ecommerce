@@ -21,6 +21,8 @@ import { Product } from './products/product.entity';
 import { User } from './users/user.entity';
 import { FilesModule } from './files/files.module';
 import { JwtModule } from '@nestjs/jwt';
+import { ProductsRepository } from './products/products.repository';
+import { CategoryRepository } from './category/category.repository';
 
 @Module({
   imports: [
@@ -39,7 +41,7 @@ import { JwtModule } from '@nestjs/jwt';
       secret: process.env.JWT_SECRET
     })],
   controllers: [AppController],
-  providers: [AppService, DataLoaderService, CategoryService, ProductsService],
+  providers: [AppService, DataLoaderService, CategoryService, ProductsService, ProductsRepository, CategoryRepository],
 })
 
 export class AppModule implements  NestModule {

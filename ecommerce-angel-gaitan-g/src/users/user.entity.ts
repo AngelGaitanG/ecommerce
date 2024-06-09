@@ -2,6 +2,8 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import {v4 as uuid} from 'uuid'
 import { Order } from "src/order/order.entity";
 import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
+import { Role } from "src/auth/role.enum";
 @Entity({
     name: 'users',
 })
@@ -34,12 +36,14 @@ export class User {
             example: 'password123.'
         }
     )
+    @Exclude()
     @Column({length: 80})
     password: string
 
     @ApiHideProperty()
-    @Column({default: false})
-    isAdmin: boolean
+    @Exclude()
+    @Column({default: 'user'})
+    role: Role
 
     @ApiProperty(
         {
