@@ -69,11 +69,11 @@ export class OrderRepository {
 
     async getOrder(id: string): Promise<Order> {
         if(!id){
-            throw new BadRequestException('Id no enviado');
+            throw new BadRequestException('Id no ha sido enviado');
         }
         const order = await this.orderRepository.findOne({where: {id}, relations: {orderDetail: {product: true}, user: true}});
         if(!order){
-            throw new NotFoundException('Orden no encontrada');
+            throw new NotFoundException('La orden no ha sido encontrada');
         }
         return order;
     }

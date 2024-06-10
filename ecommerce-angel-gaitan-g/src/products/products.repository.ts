@@ -95,7 +95,7 @@ export class ProductsRepository {
         }
         const product = await this.productsRepository.findOne({where: {id}})
         if(!product){
-            throw new NotFoundException('Producto no encontrado');
+            throw new NotFoundException('Producto no ha sido encontrado');
         }
         this.productsRepository.delete(id)
         return id;

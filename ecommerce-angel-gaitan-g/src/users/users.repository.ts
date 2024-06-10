@@ -65,7 +65,7 @@ export class usersRepository {
         }
         const foundUser = await this.usersRepository.findOne({ where: { id: id } });
         if(!foundUser){
-            throw new NotFoundException('Usario no encontrado');
+            throw new NotFoundException('El usuario no ha sido encontrado');
         }
         Object.assign(foundUser, user);
         await this.usersRepository.save(foundUser);
@@ -77,7 +77,7 @@ export class usersRepository {
             throw new BadRequestException('Id no enviado');
         }
         const foundUser = await this.usersRepository.findOne({ where: { id: id } });
-        if (!foundUser) throw new NotFoundException('Usuario no encontrado');
+        if (!foundUser) throw new NotFoundException('Usuario no ha sido encontrado');
         await this.orderRepository.delete({user: foundUser})
         await this.usersRepository.delete(foundUser);
         return foundUser;
