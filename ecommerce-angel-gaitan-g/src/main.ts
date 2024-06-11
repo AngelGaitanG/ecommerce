@@ -8,8 +8,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Ecommerce API')
-    .setDescription('Ecommerce API - Angel Gaitan')
+    .setTitle('Comercio en linea API - Angelito')
+    .setDescription('Es una documentacion finalizada para trabajar con el desarrollo frontend')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

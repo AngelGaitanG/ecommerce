@@ -10,8 +10,7 @@ export class DataLoaderService {
         private readonly productsService: ProductsService
     ){}
 
-    // AQUI ESTA EL METODO DONDE COMPRUEBA DE QUE NO EXISTA UNA CATEGORIA REPETIDA Y 
-    // SINO QUE LA CREE
+
     async loadCategories() {
         const uniqueCategories = [];
         for(const product of data.products){
@@ -33,7 +32,7 @@ export class DataLoaderService {
         }
     }
     
-    // AQUI ESTA LO MISMO PERO CON PRODUCTOS Y ADEMAS LE ASIGNA LA RELACION CON LA CATEGORIA
+
     async loadProducts(){
         for(const product of data.products){
             const category = await this.categoryService.findByName(product.category)
